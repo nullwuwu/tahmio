@@ -1,0 +1,22 @@
+{
+  "name": "@applet/tank",
+  "version": "1.0.0",
+  "description": "miniapp request lib",
+  "main": "index.js",
+  "directories": {
+    "example": "example",
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://gitlab.yupaopao.cn/appletgroup/tank.git"
+  },
+  "keywords": [
+    "request"
+  ],
+  "author": "caominjie",
+  "license": "ISC"
+}
