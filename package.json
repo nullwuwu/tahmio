@@ -1,6 +1,6 @@
 {
   "name": "@applet/tank",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "miniapp request lib",
   "main": "index.js",
   "directories": {
