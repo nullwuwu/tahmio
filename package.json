@@ -2,12 +2,15 @@
   "name": "@applet/tank",
   "version": "1.0.3",
   "description": "miniapp request lib",
-  "main": "index.js",
+  "main": "dist/tank.cjs.js",
+  "module": "dist/tank.esm.js",
+  "browser": "dist/tank.umd.js",
   "directories": {
     "example": "example",
     "lib": "lib"
   },
   "scripts": {
+    "build": "rollup -w",
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy": "npm publish --registry http://npm.yupaopao.com"
   },
@@ -19,5 +22,10 @@
     "request"
   ],
   "author": "caominjie",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "rollup": "^0.66.6",
+    "rollup-plugin-commonjs": "^9.2.0",
+    "rollup-plugin-node-resolve": "^3.4.0"
+  }
 }
