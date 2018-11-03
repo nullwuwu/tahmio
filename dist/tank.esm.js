@@ -2,7 +2,7 @@ const isString = val => {
   return typeof val === 'string'
 };
 
-const isFunction$1 = fn => {
+const isFunction = fn => {
   return typeof fn === 'function'
 };
 
@@ -66,7 +66,7 @@ const bind = (fn, ctx) => {
 
 const extend = (target, source, ctx) => {
   forEach(source, (val, key) => {
-    if (ctx && isFunction$1(val)) {
+    if (ctx && isFunction(val)) {
       target[key] = bind(val, ctx);
     } else {
       target[key] = val;
@@ -89,7 +89,7 @@ var defaults = {
  * @description currying断言
  */
 
-const assert$1 = (condition, msg) => {
+const assert = (condition, msg) => {
   if (!condition) throw new Error(`[invoke request error]: ${msg}`)
 };
 
@@ -143,19 +143,16 @@ class InterceptorManager {
  */
 
 class Cacher {
-  constructor() {
+  constructor(option = {}) {
     this.cacheMap = new Map();
-    this.expire = this.option.expire || 1000 * 60 * 5;
-    this.maxCacheSize = this.option.maxCacheSize || 15;
-    this.excludeHeaders = this.option.excludeHeaders || true;
+
+    this.expire = option.expire || 1000 * 60 * 5;
+    this.maxCacheSize = option.maxCacheSize || 15;
+    this.excludeHeaders = option.excludeHeaders || true;
   }
 
   setCache(key, val) {
-    if (this.excludeHeaders) delete key.headers;
-
-    const k = JSON.stringify(key);
-
-    this.cacheMap.set(k, val);
+    this.cacheMap.set(key, val);
 
     if (this.maxCacheSize && this.cacheMap.size > this.maxCacheSize) {
       this.cacheMap.delete(
@@ -165,23 +162,19 @@ class Cacher {
 
     if (this.expire) {
       setTimeout(() => {
-        if (this.hasCache(k)) {
-          this.cacheMap.delete(k);
+        if (this.hasCache(key)) {
+          this.cacheMap.delete(key);
         }
       }, this.expire);
     }
   }
 
   hasCache(key) {
-    const k = typeof key === 'object' ? JSON.stringify(key) : key;
-
-    return this.cacheMap.has(k)
+    return this.cacheMap.has(key)
   }
 
   getCache(key) {
-    const k = typeof key === 'object' ? JSON.stringify(key) : key;
-
-    return this.cacheMap.get(k)
+    return this.cacheMap.get(key)
   }
 }
 
@@ -286,7 +279,7 @@ function setConcurrencyRequest(request, concurrency = defaultConcurrency) {
 
 const concurrency = 10;
 
-assert$1(wx && wx.request, 'plz check env');
+assert(wx && wx.request, 'plz check env');
 
 const request = setConcurrencyRequest(wx.request, concurrency);
 
@@ -342,7 +335,7 @@ Tank.prototype.request = function (config) {
 
   config = merge(defaults, this.defaults, { method: 'POST' }, config);
 
-  const { cacheControl } = config;
+  const { cacheControl } = config.bixinConfig;
   const cacheConfig = merge(this.cacher, cacheControl);
 
   if (config.baseURL && !isAbsoluteURL(config.url)) {
@@ -356,11 +349,20 @@ Tank.prototype.request = function (config) {
   const chain = [dispatchRequest, undefined];
 
   if (cacheConfig.cache) {
-    if (this.cacher.hasCache(config)) {
-      return this.cacher.getCache(config)
+    const simpleConfig = `${config.url}${JSON.stringify(config.data || config.body)}`;
+
+    if (this.cacher.hasCache(simpleConfig)) {
+      const cacheResponse = this.cacher.getCache(simpleConfig);
+
+      chain.splice(0, 1, () => {
+        return cacheResponse
+      });
+
     } else {
       chain.push(...[(response) => {
-        this.cacher.setCache(config, response);
+        this.cacher.setCache(simpleConfig, response);
+
+        return response
       }, undefined]);
     }
   }

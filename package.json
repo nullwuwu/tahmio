@@ -1,6 +1,6 @@
 {
   "name": "@applet/tank",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "miniapp request lib",
   "main": "dist/tank.cjs.js",
   "module": "dist/tank.esm.js",
@@ -9,6 +9,11 @@
     "example": "example",
     "lib": "lib"
   },
+  "files": [
+    "lib",
+    "example",
+    "dist"
+  ],
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
