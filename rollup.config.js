@@ -2,13 +2,13 @@ import resolve from 'rollup-plugin-node-resolve'
 import commonjs from 'rollup-plugin-commonjs'
 import pkg from './package.json'
 
-const input = 'lib/index'
+const input = 'lib/index.js'
 
 export default [
   {
     input,
     output: {
-      name: 'howLongUntilLunch',
+      name: 'Tank',
       file: pkg.browser,
       format: 'umd'
     },

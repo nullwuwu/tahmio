@@ -10,7 +10,8 @@
     "lib": "lib"
   },
   "scripts": {
-    "build": "rollup -w",
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy": "npm publish --registry http://npm.yupaopao.com"
   },
@@ -23,7 +24,7 @@
   ],
   "author": "caominjie",
   "license": "ISC",
-  "dependencies": {
+  "devDependencies": {
     "rollup": "^0.66.6",
     "rollup-plugin-commonjs": "^9.2.0",
     "rollup-plugin-node-resolve": "^3.4.0"
