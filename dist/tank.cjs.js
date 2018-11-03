@@ -4,7 +4,7 @@ const isString = val => {
   return typeof val === 'string'
 };
 
-const isFunction$1 = fn => {
+const isFunction = fn => {
   return typeof fn === 'function'
 };
 
@@ -68,7 +68,7 @@ const bind = (fn, ctx) => {
 
 const extend = (target, source, ctx) => {
   forEach(source, (val, key) => {
-    if (ctx && isFunction$1(val)) {
+    if (ctx && isFunction(val)) {
       target[key] = bind(val, ctx);
     } else {
       target[key] = val;
@@ -78,13 +78,20 @@ const extend = (target, source, ctx) => {
   return target
 };
 
-var defaults = {};
+var defaults = {
+  // cacheControl: {
+  //   cache: true,
+  //   // expire 过期时间
+  //   // maxCacheSize 缓存量
+  //   // excludeHeaders 是否排除headers
+  // }
+};
 
 /**
  * @description currying断言
  */
 
-const assert$1 = (condition, msg) => {
+const assert = (condition, msg) => {
   if (!condition) throw new Error(`[invoke request error]: ${msg}`)
 };
 
@@ -132,11 +139,151 @@ class InterceptorManager {
   }
 }
 
+/**
+ * @author caominjie
+ * @description 缓存类
+ */
+
+class Cacher {
+  constructor(option = {}) {
+    this.cacheMap = new Map();
+
+    this.expire = option.expire || 1000 * 60 * 5;
+    this.maxCacheSize = option.maxCacheSize || 15;
+    this.excludeHeaders = option.excludeHeaders || true;
+  }
+
+  setCache(key, val) {
+    this.cacheMap.set(key, val);
+
+    if (this.maxCacheSize && this.cacheMap.size > this.maxCacheSize) {
+      this.cacheMap.delete(
+        ...this.cacheMap.keys()[0]
+      );
+    }
+
+    if (this.expire) {
+      setTimeout(() => {
+        if (this.hasCache(key)) {
+          this.cacheMap.delete(key);
+        }
+      }, this.expire);
+    }
+  }
+
+  hasCache(key) {
+    return this.cacheMap.has(key)
+  }
+
+  getCache(key) {
+    return this.cacheMap.get(key)
+  }
+}
+
+const defaultConcurrency = 5;
+
+function setConcurrencyCount(concurrency = defaultConcurrency) {
+  return concurrency && concurrency.constructor === Number
+    ? concurrency
+    : defaultConcurrency
+}
+
+// 回调结束置空
+const setCall = fn => (...args) => {
+  if (!fn) {
+    throw new Error('repeating call has been denied.')
+  }
+
+  const call = fn;
+  fn = null;
+
+  return call(...args)
+};
+
+function getRequestQueue(call, concurrency) {
+  concurrency = setConcurrencyCount(concurrency);
+
+  // 挂起
+  const waitingList = [];
+  // 执行
+  const executionList = [];
+
+  return function() {
+    const model = {
+      concurrency,
+      push(currentRequest, call) {
+        waitingList.push({
+          currentRequest,
+          call
+        });
+
+        this.excute();
+      },
+      excute() {
+        while (this.concurrency > executionList.length && waitingList.length) {
+          // 将挂起队列中请求推进执行队列
+          const apiModel = waitingList.shift();
+          executionList.push(apiModel);
+          call(
+            apiModel.currentRequest,
+            setCall((...args) => {
+              this.changeQueue(apiModel);
+              if (apiModel.call) {
+                apiModel.call.constructor === Function && apiModel.call(...args);
+              }
+
+              // 发起请求
+              this.excute();
+            })
+          );
+        }
+      },
+      changeQueue(apiModel) {
+        // 从执行队列移除
+        const index = executionList.indexOf(apiModel);
+
+        if (index !== -1) {
+          executionList.splice(index, 1);
+        }
+      }
+    };
+
+    return model
+  }
+}
+
+function setConcurrencyRequest(request, concurrency = defaultConcurrency) {
+  if (typeof request !== 'function') {
+    throw Error('request must be function')
+  }
+
+  const queue = getRequestQueue(
+    (currentRequest, call) => currentRequest(call),
+    concurrency
+  )();
+
+  return apiArgs => {
+    queue.push(call => {
+      const complete = apiArgs.complete;
+
+      apiArgs.complete = (...args) => {
+        // 请求完成
+        call();
+        if (complete) {
+          complete.constructor === Function && complete.apply(apiArgs, args);
+        }
+      };
+
+      request(apiArgs);
+    });
+  }
+}
+
 const concurrency = 10;
 
-assert$1(wx && wx.request, 'plz check env');
+assert(wx && wx.request, 'plz check env');
 
-const request = require('./../core/concurrency')(wx.request, concurrency);
+const request = setConcurrencyRequest(wx.request, concurrency);
 
 function wxAdapter(resolve, reject, config) {
   const { url, data, body, method, headers } = config;
@@ -176,6 +323,8 @@ function Tank(defaultConfig) {
     request: new InterceptorManager(),
     response: new InterceptorManager()
   };
+
+  this.cacher = new Cacher();
 }
 
 Tank.prototype.request = function (config) {
@@ -188,14 +337,37 @@ Tank.prototype.request = function (config) {
 
   config = merge(defaults, this.defaults, { method: 'POST' }, config);
 
+  const { cacheControl } = config.bixinConfig;
+  const cacheConfig = merge(this.cacher, cacheControl);
+
   if (config.baseURL && !isAbsoluteURL(config.url)) {
     config.url = combineURLs(config.baseURL, config.url);
   }
 
   config.headers = merge({}, config.headers || {});
 
-  const chain = [dispatchRequest, undefined];
   let promise = Promise.resolve(config);
+
+  const chain = [dispatchRequest, undefined];
+
+  if (cacheConfig.cache) {
+    const simpleConfig = `${config.url}${JSON.stringify(config.data || config.body)}`;
+
+    if (this.cacher.hasCache(simpleConfig)) {
+      const cacheResponse = this.cacher.getCache(simpleConfig);
+
+      chain.splice(0, 1, () => {
+        return cacheResponse
+      });
+
+    } else {
+      chain.push(...[(response) => {
+        this.cacher.setCache(simpleConfig, response);
+
+        return response
+      }, undefined]);
+    }
+  }
 
   this.interceptors.request.reducer(({ fulfilled, rejected }) =>
     chain.unshift(fulfilled, rejected)
@@ -228,7 +400,5 @@ tank.use = function(fn) {
 
   fn(tank);
 };
-
-module.exports = tank;
 
 module.exports = tank;
