@@ -162,7 +162,7 @@
 
       if (this.maxCacheSize && this.cacheMap.size > this.maxCacheSize) {
         this.cacheMap.delete(
-          ...this.cacheMap.keys()[0]
+          this.cacheMap.keys().next().value
         );
       }
 
