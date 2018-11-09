@@ -348,7 +348,9 @@ Tank.prototype.request = function (config) {
 
   const chain = [dispatchRequest, undefined];
 
-  if (cacheConfig.cache) {
+  const needCache = typeof cacheConfig.cache === 'function' ? cacheConfig.cache(config) : cacheConfig.cache;
+
+  if (needCache) {
     const simpleConfig = `${config.url}${JSON.stringify(config.data || config.body)}`;
 
     if (this.cacher.hasCache(simpleConfig)) {
