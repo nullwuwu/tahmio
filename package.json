@@ -1,6 +1,6 @@
 {
   "name": "@applet/tank",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "miniapp request lib",
   "main": "dist/tank.cjs.js",
   "module": "dist/tank.esm.js",
