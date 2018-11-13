@@ -1,6 +1,6 @@
 {
   "name": "@applet/tahm",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "miniapp request lib",
   "main": "dist/tank.cjs.js",
   "module": "dist/tank.esm.js",
@@ -18,7 +18,7 @@
     "build": "rollup -c",
     "dev": "rollup -c -w",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy": "npm publish --registry http://npm.yupaopao.com"
+    "deploy": "rollup -c && npm publish --registry http://npm.yupaopao.com"
   },
   "repository": {
     "type": "git",

@@ -342,7 +342,7 @@
     config = merge(defaults, this.defaults, { method: 'POST' }, config);
 
     const { cacheControl } = config.bixinConfig;
-    const cacheConfig = merge(this.cacher, cacheControl);
+    const { cache, cacheIgnore, beforeSetCache } = merge(this.cacher, cacheControl);
 
     if (config.baseURL && !isAbsoluteURL(config.url)) {
       config.url = combineURLs(config.baseURL, config.url);
@@ -354,9 +354,9 @@
 
     const chain = [dispatchRequest, undefined];
 
-    const needCache = typeof cacheConfig.cache === 'function' ? cacheConfig.cache(config) : cacheConfig.cache;
+    const needCache = typeof cacheIgnore === 'function' ? cacheIgnore(config) : cacheIgnore;
 
-    if (needCache) {
+    if (needCache && cache) {
       const simpleConfig = `${config.url}${JSON.stringify(config.data || config.body)}`;
 
       if (this.cacher.hasCache(simpleConfig)) {
@@ -368,7 +368,9 @@
 
       } else {
         chain.push(...[(response) => {
-          this.cacher.setCache(simpleConfig, response);
+          const beforeSetCacheHook = beforeSetCache && beforeSetCache(response) || true;
+
+          beforeSetCacheHook && this.cacher.setCache(simpleConfig, response);
 
           return response
         }, undefined]);
