@@ -1,5 +1,5 @@
 {
-  "name": "@fe/tahm",
+  "name": "@fe/request",
   "version": "1.0.0",
   "description": "miniapp request lib",
   "main": "dist/tahm.cjs.js",
