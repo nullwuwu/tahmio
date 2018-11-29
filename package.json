@@ -1,10 +1,10 @@
 {
-  "name": "@applet/tahm",
-  "version": "1.0.2",
+  "name": "@fe/tahm",
+  "version": "1.0.0",
   "description": "miniapp request lib",
-  "main": "dist/tank.cjs.js",
-  "module": "dist/tank.esm.js",
-  "browser": "dist/tank.umd.js",
+  "main": "dist/tahm.cjs.js",
+  "module": "dist/tahm.esm.js",
+  "browser": "dist/tahm.umd.js",
   "directories": {
     "example": "example",
     "lib": "lib"
@@ -21,8 +21,8 @@
     "deploy": "rollup -c && npm publish --registry http://npm.yupaopao.com"
   },
   "repository": {
-    "type": "git",
-    "url": "http://gitlab.yupaopao.cn/appletgroup/tank.git"
+    "type": "gitlab",
+    "url": "http://git.yupaopao.com/fe/infrastructure/tahm.git"
   },
   "keywords": [
     "request"
@@ -30,7 +30,11 @@
   "author": "caominjie",
   "license": "ISC",
   "devDependencies": {
+    "@babel/core": "^7.1.6",
+    "@babel/preset-env": "^7.1.6",
+    "babel": "^6.23.0",
     "rollup": "^0.66.6",
+    "rollup-plugin-babel": "^4.0.3",
     "rollup-plugin-commonjs": "^9.2.0",
     "rollup-plugin-node-resolve": "^3.4.0"
   }

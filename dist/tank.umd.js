@@ -4,46 +4,147 @@
   (global.Tank = factory());
 }(this, (function () { 'use strict';
 
-  const isString = val => {
-    return typeof val === 'string'
-  };
-
-  const isFunction = fn => {
-    return typeof fn === 'function'
-  };
-
-  const isObject = val => {
-    return val && typeof val === 'object'
-  };
-
-  const isArray = val => {
-    return toString.call(val) === '[object Array]'
-  };
-
-  const forEach = (obj, fn) => {
-    if (obj === null || typeof obj === 'undefined') {
-      return
+  function _typeof(obj) {
+    if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
+      _typeof = function (obj) {
+        return typeof obj;
+      };
+    } else {
+      _typeof = function (obj) {
+        return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+      };
     }
 
-    if (typeof obj !== 'object' && !isArray(obj)) {
+    return _typeof(obj);
+  }
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  function _defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];
+      descriptor.enumerable = descriptor.enumerable || false;
+      descriptor.configurable = true;
+      if ("value" in descriptor) descriptor.writable = true;
+      Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }
+
+  function _createClass(Constructor, protoProps, staticProps) {
+    if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+    if (staticProps) _defineProperties(Constructor, staticProps);
+    return Constructor;
+  }
+
+  function _defineProperty(obj, key, value) {
+    if (key in obj) {
+      Object.defineProperty(obj, key, {
+        value: value,
+        enumerable: true,
+        configurable: true,
+        writable: true
+      });
+    } else {
+      obj[key] = value;
+    }
+
+    return obj;
+  }
+
+  function _objectSpread(target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i] != null ? arguments[i] : {};
+      var ownKeys = Object.keys(source);
+
+      if (typeof Object.getOwnPropertySymbols === 'function') {
+        ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) {
+          return Object.getOwnPropertyDescriptor(source, sym).enumerable;
+        }));
+      }
+
+      ownKeys.forEach(function (key) {
+        _defineProperty(target, key, source[key]);
+      });
+    }
+
+    return target;
+  }
+
+  function _objectWithoutPropertiesLoose(source, excluded) {
+    if (source == null) return {};
+    var target = {};
+    var sourceKeys = Object.keys(source);
+    var key, i;
+
+    for (i = 0; i < sourceKeys.length; i++) {
+      key = sourceKeys[i];
+      if (excluded.indexOf(key) >= 0) continue;
+      target[key] = source[key];
+    }
+
+    return target;
+  }
+
+  function _objectWithoutProperties(source, excluded) {
+    if (source == null) return {};
+
+    var target = _objectWithoutPropertiesLoose(source, excluded);
+
+    var key, i;
+
+    if (Object.getOwnPropertySymbols) {
+      var sourceSymbolKeys = Object.getOwnPropertySymbols(source);
+
+      for (i = 0; i < sourceSymbolKeys.length; i++) {
+        key = sourceSymbolKeys[i];
+        if (excluded.indexOf(key) >= 0) continue;
+        if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue;
+        target[key] = source[key];
+      }
+    }
+
+    return target;
+  }
+
+  var isString = function isString(val) {
+    return typeof val === 'string';
+  };
+  var isFunction = function isFunction(fn) {
+    return typeof fn === 'function';
+  };
+  var isObject = function isObject(val) {
+    return val && _typeof(val) === 'object';
+  };
+  var isArray = function isArray(val) {
+    return toString.call(val) === '[object Array]';
+  };
+  var forEach = function forEach(obj, fn) {
+    if (obj === null || typeof obj === 'undefined') {
+      return;
+    }
+
+    if (_typeof(obj) !== 'object' && !isArray(obj)) {
       obj = [obj];
     }
 
     if (isArray(obj)) {
-      for (let i = 0, l = obj.length; i < l; i++) {
+      for (var i = 0, l = obj.length; i < l; i++) {
         fn(obj[i], i, obj);
       }
     } else {
-      for (let key in obj) {
+      for (var key in obj) {
         if (obj.hasOwnProperty(key)) {
           fn(obj[key], key, obj);
         }
       }
     }
   };
-
-  const merge = (...arg) => {
-    const result = {};
+  var merge = function merge() {
+    var result = {};
 
     function assignValue(v, k) {
       if (isObject(result[k]) && isObject(v)) {
@@ -53,37 +154,32 @@
       }
     }
 
-    const len = arg.length;
+    var len = arguments.length;
 
-    for (let i = 0; i < len; i++) {
-      forEach(arg[i], assignValue);
+    for (var i = 0; i < len; i++) {
+      forEach(i < 0 || arguments.length <= i ? undefined : arguments[i], assignValue);
     }
 
-    return result
+    return result;
   };
-
-  const bind = (fn, ctx) => {
+  var bind = function bind(fn, ctx) {
     return function wrap() {
-      const args = [].slice.call(arguments, 0);
-
-      return fn.apply(ctx, args)
-    }
+      var args = [].slice.call(arguments, 0);
+      return fn.apply(ctx, args);
+    };
   };
-
-  const extend = (target, source, ctx) => {
-    forEach(source, (val, key) => {
+  var extend = function extend(target, source, ctx) {
+    forEach(source, function (val, key) {
       if (ctx && isFunction(val)) {
         target[key] = bind(val, ctx);
       } else {
         target[key] = val;
       }
     });
-
-    return target
+    return target;
   };
 
-  var defaults = {
-    // cacheControl: {
+  var defaults = {// cacheControl: {
     //   cache: true,
     //   // expire 过期时间
     //   // maxCacheSize 缓存量
@@ -92,323 +188,377 @@
   };
 
   /**
-   * @description currying断言
-   */
-
-  const assert = (condition, msg) => {
-    if (!condition) throw new Error(`[invoke request error]: ${msg}`)
-  };
-
-  /**
    * @description 检查是否为相对路径url
    */
   function isAbsoluteURL(url) {
-    return /^([a-z][a-z\d+\-.]*:)?\/\//i.test(url)
+    return /^([a-z][a-z\d+\-.]*:)?\/\//i.test(url);
   }
 
   /**
    * @description url合并
    */
   function combineURLs(baseURL, relativeURL) {
-    return baseURL.replace(/\/+$/, '') + '/' + relativeURL.replace(/^\/+/, '')
+    return baseURL.replace(/\/+$/, '') + '/' + relativeURL.replace(/^\/+/, '');
   }
 
   /**
    * @description 路由拦截器
    */
-  class InterceptorManager {
-    constructor() {
+
+  var InterceptorManager =
+  /*#__PURE__*/
+  function () {
+    function InterceptorManager() {
+      _classCallCheck(this, InterceptorManager);
+
       this.handlers = [];
     }
 
-    use(fulfilled, rejected) {
-      this.handlers.push({
-        fulfilled,
-        rejected
-      });
-
-      return this.handlers.length - 1
-    }
-
-    eject(id) {
-      if (this.handlers[id]) {
-        this.handlers[id] = null;
+    _createClass(InterceptorManager, [{
+      key: "use",
+      value: function use(fulfilled, rejected) {
+        this.handlers.push({
+          fulfilled: fulfilled,
+          rejected: rejected
+        });
+        return this.handlers.length - 1;
       }
-    }
+    }, {
+      key: "eject",
+      value: function eject(id) {
+        if (this.handlers[id]) {
+          this.handlers[id] = null;
+        }
+      }
+    }, {
+      key: "reducer",
+      value: function reducer(fn) {
+        forEach(this.handlers, function (h) {
+          h !== null && fn(h);
+        });
+      }
+    }]);
 
-    reducer(fn) {
-      forEach(this.handlers, h => {
-        h !== null && fn(h);
-      });
-    }
-  }
+    return InterceptorManager;
+  }();
 
   /**
    * @author caominjie
    * @description 缓存类
    */
+  var Cacher =
+  /*#__PURE__*/
+  function () {
+    function Cacher() {
+      var option = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-  class Cacher {
-    constructor(option = {}) {
+      _classCallCheck(this, Cacher);
+
       this.cacheMap = new Map();
-
       this.expire = option.expire || 1000 * 60 * 5;
       this.maxCacheSize = option.maxCacheSize || 15;
       this.excludeHeaders = option.excludeHeaders || true;
     }
 
-    setCache(key, val) {
-      this.cacheMap.set(key, val);
+    _createClass(Cacher, [{
+      key: "setCache",
+      value: function setCache(key, val) {
+        var _this = this;
 
-      if (this.maxCacheSize && this.cacheMap.size > this.maxCacheSize) {
-        this.cacheMap.delete(
-          this.cacheMap.keys().next().value
-        );
+        this.cacheMap.set(key, val);
+
+        if (this.maxCacheSize && this.cacheMap.size > this.maxCacheSize) {
+          this.cacheMap.delete(this.cacheMap.keys().next().value);
+        }
+
+        if (this.expire) {
+          setTimeout(function () {
+            if (_this.hasCache(key)) {
+              _this.cacheMap.delete(key);
+            }
+          }, this.expire);
+        }
+      }
+    }, {
+      key: "hasCache",
+      value: function hasCache(key) {
+        return this.cacheMap.has(key);
+      }
+    }, {
+      key: "getCache",
+      value: function getCache(key) {
+        return this.cacheMap.get(key);
+      }
+    }]);
+
+    return Cacher;
+  }();
+
+  var defaultConcurrency = 5;
+
+  function setConcurrencyCount() {
+    var concurrency = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : defaultConcurrency;
+    return concurrency && concurrency.constructor === Number ? concurrency : defaultConcurrency;
+  } // 回调结束置空
+
+
+  var setCall = function setCall(fn) {
+    return function () {
+      if (!fn) {
+        throw new Error('repeating call has been denied.');
       }
 
-      if (this.expire) {
-        setTimeout(() => {
-          if (this.hasCache(key)) {
-            this.cacheMap.delete(key);
-          }
-        }, this.expire);
-      }
-    }
-
-    hasCache(key) {
-      return this.cacheMap.has(key)
-    }
-
-    getCache(key) {
-      return this.cacheMap.get(key)
-    }
-  }
-
-  const defaultConcurrency = 5;
-
-  function setConcurrencyCount(concurrency = defaultConcurrency) {
-    return concurrency && concurrency.constructor === Number
-      ? concurrency
-      : defaultConcurrency
-  }
-
-  // 回调结束置空
-  const setCall = fn => (...args) => {
-    if (!fn) {
-      throw new Error('repeating call has been denied.')
-    }
-
-    const call = fn;
-    fn = null;
-
-    return call(...args)
+      var call = fn;
+      fn = null;
+      return call.apply(void 0, arguments);
+    };
   };
 
   function getRequestQueue(call, concurrency) {
-    concurrency = setConcurrencyCount(concurrency);
+    concurrency = setConcurrencyCount(concurrency); // 挂起
 
-    // 挂起
-    const waitingList = [];
-    // 执行
-    const executionList = [];
+    var waitingList = []; // 执行
 
-    return function() {
-      const model = {
-        concurrency,
-        push(currentRequest, call) {
+    var executionList = [];
+    return function () {
+      var model = {
+        concurrency: concurrency,
+        push: function push(currentRequest, call) {
           waitingList.push({
-            currentRequest,
-            call
+            currentRequest: currentRequest,
+            call: call
           });
-
           this.excute();
         },
-        excute() {
-          while (this.concurrency > executionList.length && waitingList.length) {
-            // 将挂起队列中请求推进执行队列
-            const apiModel = waitingList.shift();
-            executionList.push(apiModel);
-            call(
-              apiModel.currentRequest,
-              setCall((...args) => {
-                this.changeQueue(apiModel);
-                if (apiModel.call) {
-                  apiModel.call.constructor === Function && apiModel.call(...args);
-                }
+        excute: function excute() {
+          var _this = this;
 
-                // 发起请求
-                this.excute();
-              })
-            );
+          var _loop = function _loop() {
+            // 将挂起队列中请求推进执行队列
+            var apiModel = waitingList.shift();
+            executionList.push(apiModel);
+            call(apiModel.currentRequest, setCall(function () {
+              _this.changeQueue(apiModel);
+
+              if (apiModel.call) {
+                apiModel.call.constructor === Function && apiModel.call.apply(apiModel, arguments);
+              } // 发起请求
+
+
+              _this.excute();
+            }));
+          };
+
+          while (this.concurrency > executionList.length && waitingList.length) {
+            _loop();
           }
         },
-        changeQueue(apiModel) {
+        changeQueue: function changeQueue(apiModel) {
           // 从执行队列移除
-          const index = executionList.indexOf(apiModel);
+          var index = executionList.indexOf(apiModel);
 
           if (index !== -1) {
             executionList.splice(index, 1);
           }
         }
       };
-
-      return model
-    }
+      return model;
+    };
   }
 
-  function setConcurrencyRequest(request, concurrency = defaultConcurrency) {
+  function setConcurrencyRequest(request) {
+    var concurrency = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : defaultConcurrency;
+
     if (typeof request !== 'function') {
-      throw Error('request must be function')
+      throw Error('request must be function');
     }
 
-    const queue = getRequestQueue(
-      (currentRequest, call) => currentRequest(call),
-      concurrency
-    )();
+    var queue = getRequestQueue(function (currentRequest, call) {
+      return currentRequest(call);
+    }, concurrency)();
+    return function (apiArgs) {
+      queue.push(function (call) {
+        var complete = apiArgs.complete;
 
-    return apiArgs => {
-      queue.push(call => {
-        const complete = apiArgs.complete;
-
-        apiArgs.complete = (...args) => {
+        apiArgs.complete = function () {
           // 请求完成
           call();
+
           if (complete) {
+            for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+              args[_key] = arguments[_key];
+            }
+
             complete.constructor === Function && complete.apply(apiArgs, args);
           }
         };
 
         request(apiArgs);
       });
-    }
+    };
   }
 
-  const concurrency = 10;
+  var concurrency = 10;
+  var request;
 
-  assert(wx && wx.request, 'plz check env');
+  try {
+    request = wx && setConcurrencyRequest(wx.request, concurrency);
+  } catch (error) {}
 
-  const request = setConcurrencyRequest(wx.request, concurrency);
-
-  function wxAdapter(resolve, reject, config) {
-    const { url, data, body, method, headers } = config;
-
-    request({
-      url,
-      data: data || body || {},
-      header: headers,
-      method: method.toUpperCase(),
-      success: function(res) {
-        if (res.statusCode !== 200) {
-          reject({ ...res, ...config });
-        } else {
-          resolve({ ...res, ...config });
+  function wxAdapter(config) {
+    return new Promise(function (resolve, reject) {
+      var url = config.url,
+          data = config.data,
+          body = config.body,
+          method = config.method,
+          headers = config.headers;
+      request({
+        url: url,
+        data: data || body || {},
+        header: headers,
+        method: method.toUpperCase(),
+        success: function success(res) {
+          if (res.statusCode !== 200) {
+            reject(_objectSpread({}, res, config));
+          } else {
+            resolve(_objectSpread({}, res, config));
+          }
+        },
+        fail: function fail(e) {
+          reject(_objectSpread({}, e, config));
         }
-      },
-      fail: function(e) {
-        reject({ ...e, ...config });
-      }
+      });
     });
   }
 
-  function dispatchRequest(config) {
-    return new Promise((resolve, reject) => {
-      try {
-        wxAdapter(resolve, reject, config);
-      } catch (e) {
-        reject(e);
-      }
-    })
+  function h5Adapter (config) {
+    var url = config.url,
+        options = _objectWithoutProperties(config, ["url"]);
+
+    return fetch(url, options);
   }
 
-  function Tank(defaultConfig) {
-    this.defaults = merge({}, defaultConfig);
+  /**
+   * @description 获取环境信息
+   */
+  var isWxMiniProgram = function isWxMiniProgram() {
+    try {
+      return !!wx && wx.request;
+    } catch (error) {
+      return false;
+    }
+  };
 
+  var requestInstance = null;
+  function dispatchRequest(config) {
+    if (!requestInstance) {
+      requestInstance = createDispatchRequest();
+    }
+
+    return requestInstance(config);
+  }
+
+  var createDispatchRequest = function createDispatchRequest() {
+    return isWxMiniProgram() ? wxAdapter : h5Adapter;
+  };
+
+  function Tahm(defaultConfig) {
+    this.defaults = merge({}, defaultConfig);
     this.interceptors = {
       request: new InterceptorManager(),
       response: new InterceptorManager()
     };
-
     this.cacher = new Cacher();
   }
 
-  Tank.prototype.request = function (config) {
+  Tahm.prototype.request = function (config) {
+    var _this = this;
+
     if (isString(config)) {
-      config = merge(
-        // eslint-disable-next-line
-        { url: arguments[0] }, arguments[1]
-      );
+      config = merge( // eslint-disable-next-line
+      {
+        url: arguments[0]
+      }, arguments[1]);
     }
 
-    config = merge(defaults, this.defaults, { method: 'POST' }, config);
+    config = merge(defaults, this.defaults, {
+      method: 'POST'
+    }, config); // todo
 
-    const { cacheControl } = config.bixinConfig;
-    const { cache, cacheIgnore, beforeSetCache } = merge(this.cacher, cacheControl);
+    var _ref = config.bixinConfig || {},
+        cacheControl = _ref.cacheControl;
+
+    var _merge = merge(this.cacher, cacheControl),
+        cache = _merge.cache,
+        cacheIgnore = _merge.cacheIgnore,
+        beforeSetCache = _merge.beforeSetCache;
 
     if (config.baseURL && !isAbsoluteURL(config.url)) {
       config.url = combineURLs(config.baseURL, config.url);
     }
 
     config.headers = merge({}, config.headers || {});
-
-    let promise = Promise.resolve(config);
-
-    const chain = [dispatchRequest, undefined];
-
-    const needCache = typeof cacheIgnore === 'function' ? cacheIgnore(config) : cacheIgnore;
+    var promise = Promise.resolve(config);
+    var chain = [dispatchRequest, undefined];
+    var needCache = typeof cacheIgnore === 'function' ? cacheIgnore(config) : cacheIgnore;
 
     if (needCache && cache) {
-      const simpleConfig = `${config.url}${JSON.stringify(config.data || config.body)}`;
+      var simpleConfig = "".concat(config.url).concat(JSON.stringify(config.data || config.body));
 
       if (this.cacher.hasCache(simpleConfig)) {
-        const cacheResponse = this.cacher.getCache(simpleConfig);
-
-        chain.splice(0, 1, () => {
-          return cacheResponse
+        var cacheResponse = this.cacher.getCache(simpleConfig);
+        chain.splice(0, 1, function () {
+          return cacheResponse;
         });
-
       } else {
-        chain.push(...[(response) => {
-          const beforeSetCacheHook = beforeSetCache && beforeSetCache(response) || true;
-
-          beforeSetCacheHook && this.cacher.setCache(simpleConfig, response);
-
-          return response
+        chain.push.apply(chain, [function (response) {
+          var beforeSetCacheHook = beforeSetCache && beforeSetCache(response) || true;
+          beforeSetCacheHook && _this.cacher.setCache(simpleConfig, response);
+          return response;
         }, undefined]);
       }
     }
 
-    this.interceptors.request.reducer(({ fulfilled, rejected }) =>
-      chain.unshift(fulfilled, rejected)
-    );
-    this.interceptors.response.reducer(({ fulfilled, rejected }) =>
-      chain.push(fulfilled, rejected)
-    );
+    this.interceptors.request.reducer(function (_ref2) {
+      var fulfilled = _ref2.fulfilled,
+          rejected = _ref2.rejected;
+      return chain.unshift(fulfilled, rejected);
+    });
+    this.interceptors.response.reducer(function (_ref3) {
+      var fulfilled = _ref3.fulfilled,
+          rejected = _ref3.rejected;
+      return chain.push(fulfilled, rejected);
+    });
 
     while (chain.length) {
       promise = promise.then(chain.shift(), chain.shift());
     }
 
-    return promise
+    return promise;
+  };
+
+  /**
+   * @description currying断言
+   */
+  var assert = function assert(condition, msg) {
+    if (!condition) throw new Error("[invoke request error]: ".concat(msg));
   };
 
   function createInstance(defaultConfig) {
-    const ctx = new Tank(defaultConfig);
-    const instance = bind(Tank.prototype.request, ctx);
-
-    extend(instance, Tank.prototype, ctx);
+    var ctx = new Tahm(defaultConfig);
+    var instance = bind(Tahm.prototype.request, ctx);
+    extend(instance, Tahm.prototype, ctx);
     extend(instance, ctx);
-
-    return instance
+    return instance;
   }
 
-  const tank = createInstance();
+  var tahm = createInstance();
 
-  tank.use = function(fn) {
+  tahm.use = function (fn) {
     assert(isFunction(fn), 'use plugin must be function');
-
-    fn(tank);
+    fn(tahm);
   };
 
-  return tank;
+  return tahm;
 
 })));
