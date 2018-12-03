@@ -6,8 +6,9 @@ function createInstance(): any{
   const instance = bind(Tahm.prototype.request, context)
 
   extend(instance, Tahm.prototype, context)
-
   extend(instance, context, null)
+
+  return instance
 }
 
 const tahm = createInstance()

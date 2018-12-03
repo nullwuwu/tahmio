@@ -22,7 +22,7 @@ export interface CaCher {
 
 class Cacher implements CaCher {
     cacheMap: Map<string, object>
-    options: CacherOption
+    options: CacherOption = {}
 
     constructor(options: CacherOption = {}) {
         // 缓存集合

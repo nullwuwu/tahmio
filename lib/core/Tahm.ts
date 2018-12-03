@@ -5,6 +5,7 @@ import dispatchRequest from './dispatchRequest';
 // interface
 import { Interceptor } from './interceptorManager';
 import { CaCher } from './cacher';
+import { merge } from '../utils';
 
 interface TahmInterceptor {
     request: Interceptor
@@ -15,11 +16,20 @@ interface Tahm {
     request(config: any): Promise<any>
 }
 
+interface TahmDefaultConfig {
+    baseURI?: string
+    method?: string
+    headers?: Headers
+    timeout?: number
+}
+
 class Tahm implements Tahm{
+    defaults: TahmDefaultConfig = {}
     cacher: CaCher
     interceptors: TahmInterceptor
 
-    constructor() {
+    constructor(defaultConfig: TahmDefaultConfig = {}) {
+        this.defaults = defaultConfig
         // 功能类的持有
         this.cacher = new Cacher()
 
@@ -49,6 +59,8 @@ class Tahm implements Tahm{
             )
         }
 
+        config = merge(this.defaults, config)
+
         let promise: Promise<any> = Promise.resolve(config)
 
         const chain: Array<any> = [dispatchRequest, undefined]
@@ -64,8 +76,10 @@ class Tahm implements Tahm{
 
             // 判断cacheMap里是否有缓存
             if (this.cacher.hasCache(cacheKey)) {
+                // 替换缓存response
                 chain.splice(0, 1, () => this.cacher.getCache(cacheKey))
             } else {
+                // 植入缓存设置拦截器
                 chain.push(
                     response => {
                         // 根据用户配置的钩子判断是否需要缓存
