@@ -2,6 +2,10 @@ import Cacher from './cacher';
 import InterceptorManager from './interceptorManager';
 import dispatchRequest from './dispatchRequest';
 
+// helpers
+import isAbsoluteURL from '../helpers/isAbsoluteURL'
+import combineURL from '../helpers/combineURL'
+
 // interface
 import { Interceptor } from './interceptorManager';
 import { CaCher } from './cacher';
@@ -60,6 +64,13 @@ class Tahm implements Tahm{
         }
 
         config = merge(this.defaults, config)
+
+
+        if (config.baseURL && !isAbsoluteURL(config.url)) {
+            config.url = combineURL(config.baseURL, config.url)
+        }
+
+        config.headers = merge({}, config.headers || {})
 
         let promise: Promise<any> = Promise.resolve(config)
 
