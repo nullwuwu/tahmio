@@ -1,34 +1,36 @@
-const concurrency = 10
-
 import wrapper from '../core/concurrency'
 
-let request
+interface requestMap {
+  [key: number]: Function
+}
 
-try {
-  request = wx && wrapper(wx.request, concurrency)
-} catch (error) {
-  
+const requestMap: requestMap = {
+
 }
 
 export default function wxAdapter(config) {
   return new Promise((resolve, reject) => {
-    const { url, data, body, method, headers } = config
+    const { url, data, body, method, headers, concurrency = 10 } = config
 
-    request({
+    if (!requestMap[concurrency]) {
+      requestMap[concurrency] = wrapper(wx.request)
+    }
+
+    return requestMap[concurrency]({
       url,
       data: data || body || {},
       header: headers,
       method: method.toUpperCase(),
-      success: function (res) {
+      success: function(res) {
         if (res.statusCode !== 200) {
           reject({ ...res, ...config })
         } else {
           resolve({ ...res, ...config })
         }
       },
-      fail: function (e) {
+      fail: function(e) {
         reject({ ...e, ...config })
       }
     })
-  })  
+  })
 }
