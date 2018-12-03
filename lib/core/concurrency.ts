@@ -1,6 +1,6 @@
-const defaultConcurrency = 5
+const defaultConcurrency = 10
 
-function setConcurrencyCount(concurrency = defaultConcurrency) {
+function setConcurrencyCount(concurrency: number = defaultConcurrency) {
   return concurrency && concurrency.constructor === Number
     ? concurrency
     : defaultConcurrency
@@ -26,7 +26,7 @@ function getRequestQueue(call, concurrency) {
   // 执行
   const executionList = []
 
-  return function() {
+  return function () {
     const model = {
       concurrency,
       push(currentRequest, call) {
@@ -93,7 +93,8 @@ function setConcurrencyRequest(request, concurrency = defaultConcurrency) {
       }
 
       request(apiArgs)
-    })
+    },
+    undefined)
   }
 }
 
