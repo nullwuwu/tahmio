@@ -1,9 +1,8 @@
-## @fe/request库
-> Bixin FE Team request lib
+## tahmio
+> request lib
 
 ## Install
 ```js
-$ yarn add @fe/request -D
 ```
 
 ## 支持功能

@@ -20,7 +20,7 @@ interface Tahm {
     request(config: any): Promise<any>
 }
 
-interface TahmDefaultConfig {
+export interface TahmDefaultConfig {
     baseURI?: string
     method?: string
     headers?: Headers
