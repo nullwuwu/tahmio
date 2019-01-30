@@ -11,12 +11,28 @@
 - [x] 请求队列
 - [x] 兼容其它端
 
+## 默认配置(baseURI, method, headers等等)
+```js
+import { tahm } from 'tahmio'
+
+const request = tahm(
+  {
+    baseURL: 'https://xxxx.xxxx.com',
+    method: 'POST',
+    headers: {
+      'Content-type': 'application/json',
+    },
+  }
+)
+
+```
+
 ## 拦截器配置
 
 >> 上一个拦截器的返回值为下一个拦截器的参数。
 
 ```js
-import request from '@fe/request'
+import request from 'tahmio'
 
 request.interceptor.request.use(config => {
   // 对 请求参数 进行处理
